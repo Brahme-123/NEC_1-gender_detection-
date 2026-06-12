@@ -5,18 +5,42 @@ This folder contains a complete, production-ready machine learning pipeline and 
 ---
 
 ## 📂 Project Tree Structure
-```text
-gender-detector-ml/
-├── data/
-│   └── dataset.csv         # Generated synthetic dataset (names and genders)
-├── templates/
-│   └── index.html          # Clean visual frontend dashboard
-├── requirements.txt        # Package dependencies
-├── generate_dataset.py     # Script to generate 1500+ diverse global names
-├── train.py                # Extracts features, trains Random Forest, saves models
-└── app.py                  # Web service loading pickled binaries to run predictions
-```
+# 🧬 Predictive Gender Classification System Using Machine Learning
 
+An end-to-end Machine Learning and Natural Language Processing (NLP) web application designed to predict biological gender classifications based on first names. This system features a robust predictive backend powered by Scikit-Learn and a modern, high-performance, responsive user interface wrapped in a customized royal blue theme using Flask.
+
+---
+
+## 🔗 Live Deployment
+The application has been successfully deployed and is accessible globally at the following production URL:  
+🌐 **[Live Production Website] (https://gender-detection-using-names.onrender.com/)**
+
+---
+
+## 📂 Architecture & Project Structure
+
+The project follows a modular and clean structural layout, strictly separating data preprocessing, model serialization, and web routing controllers:
+
+```text
+Gender_Detection_Project/
+│
+├── dataset/
+│   └── gender_dataset.csv       # Curated, balanced training data (Names & Gender labels)
+│
+├── model/
+│   ├── gender_model.pkl         # Serialized Multinomial Naive Bayes model binary
+│   └── vectorizer.pkl           # Serialized CountVectorizer text processing pipeline
+│
+├── templates/
+│   └── index.html               # Semantic HTML5 user interface with responsive layout
+│
+├── static/
+│   └── style.css                # Premium Royal Blue CSS3 custom layout stylesheet
+│
+├── train_model.py               # Machine learning pipeline automation & feature engine
+├── app.py                       # Main Flask web application server controller
+├── .gitignore                   # Version control file exclusion rules (caches/binaries)
+└── requirements.txt             # Production package dependencies with locked versions
 ---
 
 ## 🛠️ Complete Local Guide (Run in VS Code)
@@ -72,7 +96,7 @@ python app.py
 ### Step 6: Test in Browser
 Once running, open your web browser of choice and type:
 ```text
-http://localhost:5000
+http://127.0.0.1:5000
 ```
 Enter names into the input box to enjoy predictions utilizing real machine learning!
 

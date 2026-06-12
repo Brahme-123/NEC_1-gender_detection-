@@ -39,7 +39,7 @@ if os.path.exists("model/gender_model.pkl") and os.path.exists("model/vectorizer
     with open("model/vectorizer.pkl", "rb") as f:
         cv = pickle.load(f)
 
-@app.route("/", methods=["GET", "POST"])
+@app.route@app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
     confidence = None
@@ -51,26 +51,20 @@ def home():
         if input_name:
             name_lower = input_name.lower()
             
-            # RULE 1: ఫస్ట్ మన పక్కా డేటాబేస్ లో పేరు ఉందో లేదో చూస్తుంది (100% Accuracy)
             if name_lower in EXACT_NAMES_DB:
                 prediction = EXACT_NAMES_DB[name_lower]
                 confidence = "100.0"
-            
-            # RULE 2: ఒకవేళ లిస్ట్‌లో లేకపోతే, ML మోడల్ ద్వారా ప్రెడిక్ట్ చేస్తుంది
             elif model and cv:
                 vect_name = cv.transform([input_name])
                 pred = model.predict(vect_name)[0]
                 prob = model.predict_proba(vect_name)[0]
                 
                 prediction = pred
-                # Calculate confidence percentage safely
                 max_prob = max(prob) * 100
                 confidence = f"{max_prob:.1f}"
             else:
-                prediction = "Model Not Trained Yet"
+                prediction = "Model Not Trained"
                 confidence = "0.0"
 
+    
     return render_template("index.html", name=input_name, prediction=prediction, confidence=confidence)
-
-if __name__ == "__main__":
-    app.run(debug=True)
