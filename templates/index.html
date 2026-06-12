@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gender Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gender Detection Engine</h1>
+        <p class="subtitle">Predict biological gender classifications instantly using name-based text analysis.</p>
+        
+        <form action="/predict" method="POST">
+            <input type="text" name="name" placeholder="Enter a first name (e.g., Rahul, Priya)" required autocomplete="off">
+            <button type="submit">Analyze Classifier</button>
+        </form>
+
+        {% if error %}
+            <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        {% if prediction %}
+            <div class="result-box animate-fade">
+                <h3>Analysis Results</h3>
+                <p>Input Name: <strong>{{ name }}</strong></p>
+                <p>Predicted Gender: <span class="badge {{ prediction.lower() }}">{{ prediction }}</span></p>
+                <p>Confidence Level: <strong>{{ confidence }}</strong></p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
