@@ -4,47 +4,73 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Safely load ML artifacts
-MODEL_PATH = "model/gender_model.pkl"
-VECTORIZER_PATH = "model/vectorizer.pkl"
 
-if os.path.exists(MODEL_PATH) and os.path.exists(VECTORIZER_PATH):
-    with open(MODEL_PATH, "rb") as f:
+EXACT_NAMES_DB = {
+    # Boys Names (Male)
+    "sai": "Male", "teja": "Male", "krishna": "Male", "surya": "Male", "vamsi": "Male",
+    "siva": "Male", "rahul": "Male", "ramesh": "Male", "suresh": "Male", "mahesh": "Male",
+    "arjun": "Male", "kiran": "Male", "vijay": "Male", "ajay": "Male", "ravi": "Male",
+    "praveen": "Male", "rohit": "Male", "karthik": "Male", "manoj": "Male", "naveen": "Male",
+    "rajesh": "Male", "deepak": "Male", "anil": "Male", "vikram": "Male", "charan": "Male",
+    "pawan": "Male", "kalyan": "Male", "ram": "Male", "ganesh": "Male", "anand": "Male",
+    "harish": "Male", "sandeep": "Male", "satish": "Male", "ntr": "Male", "prabhas": "Male",
+    "venkat": "Male", "prasad": "Male", "naresh": "Male", "srikanth": "Male", "gopi": "Male",
+    "srinu": "Male", "babu": "Male", "mohan": "Male", "koti": "Male", "chari": "Male",
+
+    # Girls Names (Female)
+    "lakshmi": "Female", "priya": "Female", "divya": "Female", "anusha": "Female", 
+    "keerthana": "Female", "sravani": "Female", "bhavya": "Female", "kavya": "Female", 
+    "pooja": "Female", "sneha": "Female", "swathi": "Female", "harika": "Female", 
+    "nandini": "Female", "sowmya": "Female", "deepika": "Female", "meghana": "Female", 
+    "anjali": "Female", "aishwarya": "Female", "sirisha": "Female", "durga": "Female",
+    "radha": "Female", "sita": "Female", "geetha": "Female", "vani": "Female", 
+    "kalyani": "Female", "madhuri": "Female", "rani": "Female", "jyothi": "Female", 
+    "roja": "Female", "uma": "Female", "sarada": "Female", "hema": "Female",
+    "shanti": "Female", "lavanya": "Female", "ramya": "Female", "supriya": "Female"
+}
+
+# Load ML Model and Vectorizer safely
+model = None
+cv = None
+
+if os.path.exists("model/gender_model.pkl") and os.path.exists("model/vectorizer.pkl"):
+    with open("model/gender_model.pkl", "rb") as f:
         model = pickle.load(f)
-    with open(VECTORIZER_PATH, "rb") as f:
-        vectorizer = pickle.load(f)
-else:
-    model, vectorizer = None, None
-    print("⚠️ WARNING: Model files not found. Please run 'python train_model.py' first!")
+    with open("model/vectorizer.pkl", "rb") as f:
+        cv = pickle.load(f)
 
-@app.route("/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html", prediction=None)
+    prediction = None
+    confidence = None
+    input_name = ""
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    if not model or not vectorizer:
-        return render_template("index.html", error="Model is not trained yet. Run train_model.py.")
+    if request.method == "POST":
+        input_name = request.form.get("name", "").strip()
         
-    name_input = request.form.get("name", "").strip()
-    if not name_input:
-        return render_template("index.html", error="Please enter a valid name.")
-    
-    # Transform input data and predict
-    vectorized_data = vectorizer.transform([name_input])
-    prediction = model.predict(vectorized_data)[0]
-    
-    # Optional: Calculate probability confidence
-    probabilities = model.predict_proba(vectorized_data)[0]
-    classes = model.classes_
-    confidence = max(probabilities) * 100
+        if input_name:
+            name_lower = input_name.lower()
+            
+            # RULE 1: ఫస్ట్ మన పక్కా డేటాబేస్ లో పేరు ఉందో లేదో చూస్తుంది (100% Accuracy)
+            if name_lower in EXACT_NAMES_DB:
+                prediction = EXACT_NAMES_DB[name_lower]
+                confidence = "100.0"
+            
+            # RULE 2: ఒకవేళ లిస్ట్‌లో లేకపోతే, ML మోడల్ ద్వారా ప్రెడిక్ట్ చేస్తుంది
+            elif model and cv:
+                vect_name = cv.transform([input_name])
+                pred = model.predict(vect_name)[0]
+                prob = model.predict_proba(vect_name)[0]
+                
+                prediction = pred
+                # Calculate confidence percentage safely
+                max_prob = max(prob) * 100
+                confidence = f"{max_prob:.1f}"
+            else:
+                prediction = "Model Not Trained Yet"
+                confidence = "0.0"
 
-    return render_template(
-        "index.html", 
-        prediction=prediction, 
-        name=name_input, 
-        confidence=f"{confidence:.1f}%"
-    )
+    return render_template("index.html", name=input_name, prediction=prediction, confidence=confidence)
 
 if __name__ == "__main__":
     app.run(debug=True)
