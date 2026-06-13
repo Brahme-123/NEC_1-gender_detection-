@@ -39,7 +39,7 @@ if os.path.exists("model/gender_model.pkl") and os.path.exists("model/vectorizer
     with open("model/vectorizer.pkl", "rb") as f:
         cv = pickle.load(f)
 
-@app.route@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def home():
     prediction = None
     confidence = None
@@ -68,3 +68,7 @@ def home():
 
     
     return render_template("index.html", name=input_name, prediction=prediction, confidence=confidence)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
